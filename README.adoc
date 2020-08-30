@@ -1,0 +1,28 @@
+= A webapp template with React, Bootstrap, Webpack, and Babel
+:author: Fei Xie
+:email: feix@bloomreach.com
+ifdef::env-github,env-browser[:outfilesuffix: .adoc
+:icons: font
+:linkcss:
+:quick-uri: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
+:toc:
+
+== Out of box supports
+* React
+** Includes React hot reload
+* Babel
+** ES2015 preset
+** React preset
+** Async-await support
+** Class property support, for supporting arrow function properties in React classes
+* Webpack
+** Dev + production environments
+** Dev server support
+** App + lib builds
+** Babel loader + polyfill
+** Sass loader
+** File loader
+** Css loader
+* Bootstrap
+** Bootstrap styles
+** React Bootstrap components
