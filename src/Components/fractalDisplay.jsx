@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faPause, faRedo } from "@fortawesome/free-solid-svg-icons";
 import * as math from "mathjs";
 
+import styles from './fractalDisplay.scss';
+
 let chaos = {};
 
 let currentPoint,
@@ -112,7 +114,7 @@ function setPoint(p) {
   chaos.context.save();
   chaos.context.fillStyle = 'black';
   chaos.context.beginPath();
-  chaos.context.arc(x, y, 0.1, 0, Math.PI * 2, false);
+  chaos.context.arc(x, y, 0.5, 0, Math.PI * 2, false);
   chaos.context.fill();
   chaos.context.closePath();
   chaos.context.restore();
@@ -229,8 +231,8 @@ export default class FractalDisplay extends Component {
     chaos.transforms = genTransforms(templates, chaos.width, chaos.height);
 
     return (
-      <div id="fractal-display" className="fractal-display">
-        <div className="fractal-display-control">
+      <div id="fractal-display" className={styles.fractalDisplay}>
+        <div className={styles.fractalDisplayControl}>
           { playing ?
             <Button variant="link" size="sm" onClick={()=>{
               this.onPause();

@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'styles/app.scss'
+import styles from 'styles/app.scss';
 
 const testTemplates = [
   {
@@ -170,10 +170,10 @@ export default class App extends Component {
     const fileLabel = !loadedFile ? "Choose a template file" : loadedFile.name;
 
     return (
-      <div className="app">
-        <div className="left-container">
-          <Navbar className="navbar" >
-            <Form.File className="btn-browse-file" size="sm" label={fileLabel} onChange={this.loadFile} custom/>
+      <div className={styles.app}>
+        <div className={styles.leftContainer}>
+          <Navbar className={styles.navbar} >
+            <Form.File className={styles.btnBrowseFile} size="sm" label={fileLabel} onChange={this.loadFile} custom/>
             <Button variant="link" onClick={this.saveToFile} >
               <FontAwesomeIcon icon={faDownload} />
             </Button>
@@ -187,13 +187,13 @@ export default class App extends Component {
                   onRemove = {this.removeTemplate}
                   onAdd = {this.addTemplate} />
         </div>
-        <div className="main">
-          <Tabs className="main-tab" id="tab" defaultActiveKey={activeKey}
+        <div className={styles.main}>
+          <Tabs id="tab" defaultActiveKey={activeKey}
                 onSelect={activeKey => this.setState({activeKey})}>
-            <Tab className="tab-content-container" eventKey="editor" title="Template Editor">
+            <Tab className={styles.tabContentContainer} eventKey="editor" title="Template Editor">
               <TemplateDisplay templates = {templates} onTranslateChange = {this.updateTranslate} />
             </Tab>
-            <Tab className="tab-content-container" eventKey="fractal" title="Fractal Display">
+            <Tab className={styles.tabContentContainer} eventKey="fractal" title="Fractal Display">
               <FractalDisplay templates={templates} />
             </Tab>
           </Tabs>

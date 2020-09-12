@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Stage, Layer, Rect, Group, Text } from 'react-konva';
 
+import styles from './templateDisplay.scss';
+
 export default class TemplateDisplay extends Component {
   constructor(props) {
     super(props);
@@ -86,8 +88,8 @@ export default class TemplateDisplay extends Component {
     const { templates } = this.props;
 
     return (
-      <div id="template-display" className="template-display">
-        <Stage className="stage" width={width} height={height} ref={ref => this.stage=ref}>
+      <div id="template-display" className={styles.templateDisplay}>
+        <Stage className={styles.stage} width={width} height={height} ref={ref => this.stage=ref}>
           <Layer>
             { templates.map( (template, idx) => {
               const { scale, translate, rotate, flip, id } = template;

@@ -1,4 +1,4 @@
-html, body, #root {
+:global html, :global body, :global #root {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -9,7 +9,7 @@ html, body, #root {
   width: 100%;
   height: 100%;
 
-  .left-container {
+  .leftContainer {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -20,42 +20,6 @@ html, body, #root {
       padding: 10px;
       .btn-browse-file {
         margin-right: 10px;
-      }
-    }
-
-    .editor {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px;
-
-      .editor-control {
-        display: flex;
-        flex-direction: row-reverse;
-        justify-content: space-between;
-      }
-
-      .template-card {
-        margin: 10px 0;
-        background: rgba(0, 0, 0, 0.01);
-
-        .template-card-title {
-          display: flex;
-          justify-content: space-between;
-
-          .btn-card-remove {
-            color: red;
-            height: 30px;
-            &:hover {
-              color: crimson;;
-            }
-          }
-        }
-
-        .template-card-body {
-          padding: 0.5em;
-        }
       }
     }
   }
@@ -71,45 +35,12 @@ html, body, #root {
       outline: none;
     }
 
-    .tab-content {
+    :global(.tab-content) {
       flex:1;
 
-      .tab-content-container {
+      .tabContentContainer {
         width: 100%;
         height: 100%;
-
-        .template-display {
-          display: flex;
-          width: 100%;
-          height: 100%;
-          padding: 2em;
-
-          .stage {
-            margin: auto;
-            border: 1px solid lightgrey;
-          }
-        }
-
-        .fractal-display {
-          display: flex;
-          width: 100%;
-          height: 100%;
-          padding: 1em;
-
-          .fractal-display-control {
-            display: flex;
-            flex-direction: column;
-            padding-top: 20px;
-            padding-right: 10px;
-          }
-
-          #fractal-canvas {
-            width: auto;
-            height: auto;
-            margin: auto;
-            background: rgba(0, 0, 0, 0.01);
-          }
-        }
       }
     }
   }

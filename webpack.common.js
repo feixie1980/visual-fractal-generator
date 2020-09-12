@@ -81,15 +81,64 @@ var appConfig = {
           }
         ],
       },
+      /*
       {
-        test: /\.scss$/,
+        test: /\.global\.scss$/,
         exclude: /node_modules/,
-        use: ['style-loader', 'css-loader', 'postcss-loader', 'sass-loader']
+        use: ['style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  'postcss-preset-env'
+                ]
+              }
+            }
+          },
+          'sass-loader'
+        ]
       },
+       */
+      {
+        test: /^((?!\.global).)*\.scss$/,
+        exclude: /node_modules/,
+        use: ['style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true,
+              importLoaders: 1,
+              modules: {
+                localIdentName: "[name]__[local]___[hash:base64:5]",
+              }
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  'postcss-preset-env'
+                ]
+              }
+            }
+          },
+          'sass-loader'
+        ]
+      },
+
       {
         test: /\.(png|jpg|jpeg|gif|svg)$/,
         use: ['file-loader']
       },
+
       {
         test: /\.css$/,
         use: [

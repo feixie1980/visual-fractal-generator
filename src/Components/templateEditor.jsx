@@ -3,11 +3,13 @@ import { Form, Card, Row, Col, Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faPaintBrush } from "@fortawesome/free-solid-svg-icons";
 
+import styles from './templateEditor.scss';
+
 export default function Editor(props) {
   const { templates, onNameChange, onScaleChange, onTranslateChange, onRotateChange, onFlipChange, onRemove, onAdd } = props;
   return (
-    <div className="editor container">
-      <div className="editor-control">
+    <div className={`${styles.editor} container`}>
+      <div className={styles.editorControl}>
         <Button variant="link" size="sm" onClick={onAdd}>
           <FontAwesomeIcon icon={faPlus} />
         </Button>
@@ -15,15 +17,15 @@ export default function Editor(props) {
       {templates.map(template => {
         const { id, name, scale, translate, rotate, flip } = template;
         return (
-          <Card className="template-card" key={id}>
-            <Card.Body className="template-card-body">
+          <Card className={styles.templateCard} key={id}>
+            <Card.Body className={styles.templateCardBody}>
               <Card.Title>
-                <div className="template-card-title">
+                <div className={styles.templateCardTitle}>
                   <Form><Form.Text>Name</Form.Text>
                     <Form.Control type="text" defaultValue={name} size="sm"
                                   onBlur={ e => onNameChange(id, e.target.value)}/>
                   </Form>
-                  <Button className="btn-card-remove" variant="link" size="sm" onClick={() => onRemove(id)}>
+                  <Button className={styles.btnCardRemove} variant="link" size="sm" onClick={() => onRemove(id)}>
                     <FontAwesomeIcon icon={faTrash} />
                   </Button>
                 </div>
