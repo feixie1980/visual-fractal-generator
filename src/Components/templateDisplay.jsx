@@ -1,16 +1,102 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Stage, Layer, Rect, Group, Text } from 'react-konva';
+import { Stage, Layer, Rect, Group, Text, Transformer } from 'react-konva';
 
 import styles from './templateDisplay.scss';
+
+/**
+ * Bring selected template to the front of the canvas by moving it ot the last of the templates
+ * @param templates
+ * @param selectedTemplate
+ */
+function reorderTemplates(templates, selectedTemplate) {
+  if(!selectedTemplate) {
+    return templates;
+  }
+
+  const reordered = [...templates];
+  const idx = reordered.findIndex(template => template.id === selectedTemplate.id);
+  const removed = reordered.splice(idx, 1);
+  reordered.push(removed[0]);
+  return reordered;
+}
+
+
+function RectGroup(props) {
+  const { template, width, height,
+    isSelected, onSelect,
+    onDragStart, onDragEnd, onDragMove,
+    onTransformStart, onTransform, onTransformEnd } = props;
+
+  const { scale, translate, rotate, flip, id } = template;
+  const x = width * scale.x / 2 + width * translate.x;
+  const y = height * scale.y / 2 + height * translate.y;
+  const groupRef = React.useRef();
+  const transformerRef = React.useRef();
+
+  React.useEffect(() => {
+    if(transformerRef.current){
+      transformerRef.current.nodes([groupRef.current]);
+      transformerRef.current.getLayer().batchDraw();
+    }
+  });
+
+  return (
+    <>
+      <Group
+        ref={groupRef}
+        width={width}
+        height={height}
+        x={x}
+        y={y}
+        scaleX={flip? -scale.x : scale.x}
+        scaleY={scale.y}
+        rotation={rotate}
+        offsetX={width/2}
+        offsetY={height/2}
+        onClick={() => onSelect(template)}
+        draggable={true}
+        onDragStart={e => onDragStart(e.target, template)}
+        onDragEnd={e => onDragEnd(e.target, template)}
+        onDragMove={e => onDragMove(e.target, template)}
+        onTransformStart={e => onTransformStart(e.target, template)}
+        onTransform={e => onTransform(e.target, template)}
+        onTransformEnd={e => onTransformEnd(e.target, template)}
+      >
+        <Rect
+          width={width}
+          height={height}
+          fill={"rgba(250, 229, 211, 0.5)"}
+          strokeWidth={1}
+          stroke="darkgrey"
+        />
+        <Text
+          text={id}
+          width={width}
+          height={height}
+          fontSize={200}
+          fill={"rgba(0, 0, 0, 0.5)"}
+          align="center"
+          verticalAlign="middle"
+          fontFamily="calibri"
+        />
+      </Group>
+      {
+        isSelected && (
+          <Transformer
+            ref={transformerRef}
+          />
+        )}
+    </>
+  );
+}
 
 export default class TemplateDisplay extends Component {
   constructor(props) {
     super(props);
 
-    this.groups = [];
     this.stopUpdateRender = false;
-    this.onMoveUpdateCounter = 0;
+    this.onTransformUpdateCounter = 0;
 
     this.state = {
       width: 0,
@@ -24,7 +110,8 @@ export default class TemplateDisplay extends Component {
     length = Math.floor(length * .8);
     this.setState({
       width: length,
-      height: length
+      height: length,
+      selectedTemplate: null
     })
   }
 
@@ -32,7 +119,7 @@ export default class TemplateDisplay extends Component {
     return !this.stopUpdateRender;
   }
 
-  genTranslate(group) {
+  extractTranslate(group) {
     const { width, height } = this.state;
     let { x, y } = group.absolutePosition();
     x = x - group.offset().x * group.scaleX();
@@ -40,96 +127,95 @@ export default class TemplateDisplay extends Component {
     const translateX = x / width;
     const translateY = y / height;
     return {
-      x: translateX.toPrecision(2),
-      y: translateY.toPrecision(2)
+      x: parseFloat(translateX.toPrecision(2)),
+      y: parseFloat(translateY.toPrecision(2))
     }
   }
 
+  extractScaleRotate(group) {
+    const scaleFromGroup = group.scale();
+    return {
+      scale: {
+        x: parseFloat(scaleFromGroup.x.toPrecision(2)),
+        y: parseFloat(scaleFromGroup.y.toPrecision(2))
+      },
+      rotate: parseFloat(group.rotation().toPrecision(2))
+    };
+  }
+
   onDragMove = (group, template) => {
-    const { onTranslateChange } = this.props;
-    if(this.onMoveUpdateCounter++ % 5 === 0) {
-      onTranslateChange(template.id, this.genTranslate(group));
+    const { onTransformsChange } = this.props;
+    if (this.onTransformUpdateCounter++ % 5 === 0) {
+      onTransformsChange(template.id, { translate: this.extractTranslate(group) });
     }
   };
 
   onDragEnd = (group, template) => {
-    const { onTranslateChange } = this.props;
+    const { onTransformsChange } = this.props;
     this.stopUpdateRender = false;
-    onTranslateChange(template.id, this.genTranslate(group));
+    onTransformsChange(template.id, { translate: this.extractTranslate(group) });
   };
 
-  onDragStart = (group, template) => {
+  onDragStart = () => {
     this.stopUpdateRender = true;
   };
 
-  assignGroupRef = (ref, idx) => {
-    const { templates } = this.props;
+  onTransformStart = () => {
+    this.stopUpdateRender = true;
+  };
 
-    if(!ref)
-      return;
-
-    if (!this.groups[idx]) {
-      this.groups.push(null);
+  onTransform = (group, template) => {
+    const { onTransformsChange } = this.props;
+    if(this.onTransformUpdateCounter++ % 5 === 0) {
+      onTransformsChange(template.id, this.extractScaleRotate(group));
     }
-    this.groups[idx] = ref;
+  };
 
-    ref.off('dragmove');
-    ref.on('dragmove', e => this.onDragMove(e.target, templates[idx]));
+  onTransformEnd = (group, template) => {
+    const { onTransformsChange } = this.props;
+    onTransformsChange(template.id, this.extractScaleRotate(group));
+    this.stopUpdateRender = false;
+  };
 
-    ref.off('dragend');
-    ref.on('dragend', e => this.onDragEnd(e.target, templates[idx]));
+  onSelect = (template) => {
+    this.setState({
+      selectedTemplate: template
+    })
+  };
 
-    ref.off('dragstart');
-    ref.off('dragstart', e => this.onDragStart(e.target, templates[idx]));
+  detectDeselect = (e) => {
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (clickedOnEmpty) {
+      this.onSelect(null);
+    }
   };
 
   render() {
-    const { width, height } = this.state;
+    const { width, height, selectedTemplate } = this.state;
     const { templates } = this.props;
-
+    let reordered = reorderTemplates(templates, selectedTemplate);
     return (
       <div id="template-display" className={styles.templateDisplay}>
-        <Stage className={styles.stage} width={width} height={height} ref={ref => this.stage=ref}>
+        <Stage className={styles.stage} width={width} height={height} onMouseDown={this.detectDeselect}>
           <Layer>
-            { templates.map( (template, idx) => {
-              const { scale, translate, rotate, flip, id } = template;
-              const x = width * scale.x / 2 + width * translate.x;
-              const y = height * scale.y / 2 + height * translate.y;
-              return (
-                <Group
-                  key={id}
-                  ref={ref => this.assignGroupRef(ref, idx)}
+            { reordered.map( template => {
+                const isSelected = !!selectedTemplate && template.id === selectedTemplate.id;
+                return <RectGroup
+                  key={template.id}
+                  template={template}
                   width={width}
                   height={height}
-                  x={x}
-                  y={y}
-                  scaleX={flip? -scale.x : scale.x}
-                  scaleY={scale.y}
-                  rotation={rotate}
-                  offsetX={width/2}
-                  offsetY={height/2}
-                  draggable={true}
-                >
-                  <Rect
-                    width={width}
-                    height={height}
-                    fill={"rgba(250, 229, 211, 0.5)"}
-                    strokeWidth={1}
-                    stroke="darkgrey"
-                  />
-                  <Text
-                    text={id}
-                    width={width}
-                    height={height}
-                    fontSize={200}
-                    fill={"rgba(0, 0, 0, 0.5)"}
-                    align="center"
-                    verticalAlign="middle"
-                    fontFamily="calibri"
-                    />
-                </Group>
-              );
-            }) }
+                  isSelected={isSelected}
+                  onSelect={this.onSelect}
+                  onDragStart={this.onDragStart}
+                  onDragEnd={this.onDragEnd}
+                  onDragMove={this.onDragMove}
+                  onTransformStart={this.onTransformStart}
+                  onTransform={this.onTransform}
+                  onTransformEnd={this.onTransformEnd}
+                />;
+              })
+            }
           </Layer>
         </Stage>
       </div>
@@ -139,5 +225,5 @@ export default class TemplateDisplay extends Component {
 
 TemplateDisplay.propTypes = {
   templates: PropTypes.array,
-  onTranslateChange: PropTypes.func
+  onTransformsChange: PropTypes.func
 };

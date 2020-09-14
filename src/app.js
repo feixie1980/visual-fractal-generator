@@ -105,27 +105,28 @@ export default class App extends Component {
     this.setState({templates: newTemplates});
   };
 
-  updateScale = (id, newScale) => {
+  /**
+   * transforms: {
+   *   scale: {x, y},
+   *   translate: {x, y},
+   *   rotate: angle,
+   *   flip: true | false
+   * }
+   * @param id
+   * @param transforms
+   */
+  updateTransforms = (id, transforms) => {
     let newTemplates = [...this.state.templates];
-    newTemplates.find(t => t.id === id).scale = newScale;
-    this.setState({templates: newTemplates});
+    let template = newTemplates.find(t => t.id === id);
+    Object.assign(template, transforms);
+    this.setState({
+      templates: newTemplates
+    });
   };
 
   updateTranslate = (id, newTranslate) => {
     let newTemplates = [...this.state.templates];
     newTemplates.find(t => t.id === id).translate = newTranslate;
-    this.setState({templates: newTemplates});
-  };
-
-  updateRotate = (id, newAngle) => {
-    let newTemplates = [...this.state.templates];
-    newTemplates.find(t => t.id === id).rotate = newAngle;
-    this.setState({templates: newTemplates});
-  };
-
-  updateFlipe = (id, flipValue) => {
-    let newTemplates = [...this.state.templates];
-    newTemplates.find(t => t.id === id).flip = flipValue;
     this.setState({templates: newTemplates});
   };
 
@@ -180,10 +181,7 @@ export default class App extends Component {
           </Navbar>
           <Editor templates = {templates}
                   onNameChange = {this.updateName}
-                  onScaleChange = {this.updateScale}
-                  onTranslateChange = {this.updateTranslate}
-                  onRotateChange = {this.updateRotate}
-                  onFlipChange = {this.updateFlipe}
+                  onTransformsChange = {this.updateTransforms}
                   onRemove = {this.removeTemplate}
                   onAdd = {this.addTemplate} />
         </div>
@@ -191,7 +189,7 @@ export default class App extends Component {
           <Tabs id="tab" defaultActiveKey={activeKey}
                 onSelect={activeKey => this.setState({activeKey})}>
             <Tab className={styles.tabContentContainer} eventKey="editor" title="Template Editor">
-              <TemplateDisplay templates = {templates} onTranslateChange = {this.updateTranslate} />
+              <TemplateDisplay templates = {templates} onTransformsChange = {this.updateTransforms} />
             </Tab>
             <Tab className={styles.tabContentContainer} eventKey="fractal" title="Fractal Display">
               <FractalDisplay templates={templates} />
